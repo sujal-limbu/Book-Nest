@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --cream: #faf7f2;
+    --charcoal: #1a1a1a;
+    --warm-brown: #8b5e3c;
+    --gold: #c9a84c;
+    --soft-gray: #f0ece4;
+    --muted: #888077;
+    --accent: #d4451a;
+  }
+
+  body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--charcoal); }
+
+  .hero-section { position: relative; background: var(--charcoal); overflow: hidden; }
+  .carousel-item-custom { min-height: 580px; display: flex; align-items: center; padding: 60px 80px; position: relative; }
+  .carousel-item-custom::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 50%, rgba(201,168,76,0.12) 0%, transparent 65%); pointer-events: none; }
+  .hero-badge { display: inline-block; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); border: 1px solid rgba(201,168,76,0.4); padding: 5px 14px; border-radius: 2px; margin-bottom: 20px; }
+  .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 4vw, 3.5rem); font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 16px; }
+  .hero-desc { font-size: 0.95rem; color: rgba(255,255,255,0.55); max-width: 420px; line-height: 1.7; margin-bottom: 28px; }
+  .hero-price-row { display: flex; align-items: center; gap: 14px; margin-bottom: 32px; }
+  .hero-old-price { font-size: 0.9rem; color: rgba(255,255,255,0.35); text-decoration: line-through; }
+  .hero-new-price { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--gold); }
+  .hero-discount-badge { background: var(--accent); color: #fff; font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 2px; }
+  .btn-hero-primary { background: var(--gold); color: var(--charcoal); font-weight: 600; font-size: 0.85rem; padding: 13px 28px; border: none; border-radius: 2px; transition: all 0.25s; text-decoration: none; display: inline-block; }
+  .btn-hero-primary:hover { background: #e0b955; transform: translateY(-1px); }
+  .btn-hero-outline { background: transparent; color: rgba(255,255,255,0.8); font-weight: 500; font-size: 0.85rem; padding: 13px 28px; border: 1px solid rgba(255,255,255,0.2); border-radius: 2px; transition: all 0.25s; cursor: pointer; }
+  .btn-hero-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .hero-img-wrap { position: relative; display: flex; align-items: center; justify-content: flex-end; }
+  .hero-img-wrap::before { content: ''; position: absolute; width: 340px; height: 340px; border-radius: 50%; background: rgba(201,168,76,0.07); right: 40px; top: 50%; transform: translateY(-50%); }
+  .hero-img-wrap img { max-height: 420px; width: 100%; object-fit: contain; position: relative; z-index: 1; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4)); }
+  .carousel-item.active .hero-img-wrap img { animation: floatIn 0.8s ease forwards; }
+  @keyframes floatIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+  .carousel-control-prev, .carousel-control-next { width: 48px; height: 48px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 2px; top: 50%; transform: translateY(-50%); opacity: 1; }
+  .carousel-control-prev { left: 20px; } .carousel-control-next { right: 20px; }
+  .carousel-indicators [data-bs-target] { width: 24px; height: 2px; border-radius: 0; background: rgba(255,255,255,0.3); border: none; }
+  .carousel-indicators .active { background: var(--gold); width: 40px; }
+
+  .section-header { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; padding: 0 20px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--charcoal); white-space: nowrap; }
+  .section-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(26,26,26,0.15), transparent); }
+  .products-section { padding: 64px 0; }
+  .products-section:nth-child(odd) { background: var(--soft-gray); }
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; padding: 0 24px; max-width: 1400px; margin: 0 auto; }
+  .p-card { background: #fff; border-radius: 4px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; }
+  .p-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+  .p-card-img { aspect-ratio: 1; overflow: hidden; background: var(--soft-gray); }
+  .p-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+  .p-card:hover .p-card-img img { transform: scale(1.06); }
+  .p-card-body { padding: 16px; }
+  .p-card-name { font-size: 0.9rem; font-weight: 500; color: var(--charcoal); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p-card-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--soft-gray); }
+  .p-card-price { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: var(--warm-brown); }
+  .p-card-price span { font-family: 'DM Sans', sans-serif; font-size: 0.75rem; color: var(--muted); }
+  .add-cart-btn { width: 36px; height: 36px; background: var(--charcoal); border: none; border-radius: 2px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s, transform 0.2s; flex-shrink: 0; }
+  .add-cart-btn:hover { background: var(--gold); transform: scale(1.08); }
+  .add-cart-btn svg { width: 16px; height: 16px; fill: #fff; }
+  #cartToast { background: var(--charcoal) !important; border-radius: 2px; font-size: 0.85rem; }
+  .fancy-divider { display: flex; align-items: center; gap: 16px; padding: 0 40px; }
+  .fancy-divider::before, .fancy-divider::after { content: ''; flex: 1; height: 1px; background: rgba(26,26,26,0.1); }
+  .fancy-divider-dot { width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); }
+</style>
+
+<!-- HERO -->
+<section class="hero-section">
+  <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+      {% for i in carousels %}
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+        {% if forloop.first %}class="active" aria-current="true"{% endif %}></button>
+      {% endfor %}
+    </div>
+    <div class="carousel-inner">
+      {% for i in carousels %}
+      <div class="carousel-item {% if forloop.first %}active{% endif %}" data-bs-interval="5000">
+        <div class="carousel-item-custom">
+          <div class="row w-100 align-items-center">
+            <div class="col-lg-6 col-md-7">
+              <div class="hero-badge">Featured Product</div>
+              <h1 class="hero-title">{{ i.title }}</h1>
+              <p class="hero-desc">{{ i.desc }}</p>
+              <div class="hero-price-row">
+                <span class="hero-old-price">NPR {{ i.marked_price }}</span>
+                <span class="hero-new-price">NPR {{ i.price|floatformat:0 }}</span>
+                <span class="hero-discount-badge">{{ i.discount }}% OFF</span>
+              </div>
+              <div class="d-flex gap-3 flex-wrap">
+                <a href="{% url 'product_detail' 'carousel' i.pk %}" class="btn-hero-primary">View Details</a>
+                <!-- ✅ Same class as other buttons -->
+                <button class="btn-hero-outline add-to-cart-btn" data-url="{% url 'add_to_cart' 'carousel' i.pk %}">
+                  Add to Cart
+                </button>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-5 hero-img-wrap">
+              <a href="{% url 'product_detail' 'carousel' i.pk %}">
+                <img src="{{ i.image.url }}" alt="{{ i.title }}">
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+</section>
+
+<!-- TOAST -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+  <div id="cartToast" class="toast align-items-center border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body text-white fw-semibold px-3">✓ Added to cart</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<!-- BEST SELLERS -->
+<section class="products-section">
+  <div class="container-fluid">
+    <div class="section-header">
+      <h2 class="section-title">Best Sellers</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="product-grid">
+      {% for i in best_sellers %}
+      <div class="p-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+        <a href="{% url 'product_detail' 'best_seller' i.pk %}" style="text-decoration:none;">
+          <div class="p-card-img"><img src="{{ i.image.url }}" alt="{{ i.title }}"></div>
+          <div class="p-card-body"><div class="p-card-name">{{ i.title }}</div></div>
+        </a>
+        <div class="p-card-footer">
+          <div class="p-card-price"><span>NPR </span>{{ i.marked_price }}</div>
+          <button class="add-cart-btn add-to-cart-btn" data-url="{% url 'add_to_cart' 'best_seller' i.pk %}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m397.78 316h-205.13a15 15 0 0 1 -14.65-11.67l-34.54-150.48a15 15 0 0 1 14.62-18.36h274.27a15 15 0 0 1 14.65 18.36l-34.6 150.48a15 15 0 0 1 -14.62 11.67zm-193.19-30h181.25l27.67-120.48h-236.6z"/><path d="m222 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z"/><path d="m368.42 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z"/><path d="m158.08 165.49a15 15 0 0 1 -14.23-10.26l-25.71-77.23h-47.44a15 15 0 1 1 0-30h58.3a15 15 0 0 1 14.23 10.26l29.13 87.49a15 15 0 0 1 -14.23 19.74z"/></svg>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<div class="fancy-divider py-2"><div class="fancy-divider-dot"></div></div>
+
+<!-- NEW ARRIVALS -->
+<section class="products-section">
+  <div class="container-fluid">
+    <div class="section-header">
+      <h2 class="section-title">New Arrivals</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="product-grid">
+      {% for i in new_arrivals %}
+      <div class="p-card" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+        <a href="{% url 'product_detail' 'new_arrival' i.pk %}" style="text-decoration:none;">
+          <div class="p-card-img"><img src="{{ i.image.url }}" alt="{{ i.title }}"></div>
+          <div class="p-card-body"><div class="p-card-name">{{ i.title }}</div></div>
+        </a>
+        <div class="p-card-footer">
+          <div class="p-card-price"><span>NPR </span>{{ i.marked_price }}</div>
+          <button class="add-cart-btn add-to-cart-btn" data-url="{% url 'add_to_cart' 'new_arrival' i.pk %}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m397.78 316h-205.13a15 15 0 0 1 -14.65-11.67l-34.54-150.48a15 15 0 0 1 14.62-18.36h274.27a15 15 0 0 1 14.65 18.36l-34.6 150.48a15 15 0 0 1 -14.62 11.67zm-193.19-30h181.25l27.67-120.48h-236.6z"/><path d="m222 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z"/><path d="m368.42 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z"/><path d="m158.08 165.49a15 15 0 0 1 -14.23-10.26l-25.71-77.23h-47.44a15 15 0 1 1 0-30h58.3a15 15 0 0 1 14.23 10.26l29.13 87.49a15 15 0 0 1 -14.23 19.74z"/></svg>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const toastEl = document.getElementById('cartToast');
+    const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+
+    // ✅ Read CSRF token from cookie — works even with @csrf_exempt
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(function(cookie) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                }
+            });
+        }
+        return cookieValue;
+    }
+
+    function addToCart(url) {
+        fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+        })
+        .then(function(res) {
+            if (!res.ok) throw new Error('HTTP error: ' + res.status);
+            return res.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                toast.show();
+                var badge = document.getElementById('cart-count-badge');
+                if (badge) badge.textContent = data.cart_count;
+            } else {
+                alert('Could not add to cart.');
+            }
+        })
+        .catch(function(err) {
+            console.error('Cart error:', err);
+            alert('Error: ' + err.message);
+        });
+    }
+
+    // ✅ ALL cart buttons use class .add-to-cart-btn (carousel + cards)
+    document.querySelectorAll('.add-to-cart-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            addToCart(this.dataset.url);
+        });
+    });
+
+});
+</script>
+
+{% endblock content %}

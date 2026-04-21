@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container my-5">
+    <div class="row align-items-center g-5">
+
+        <!-- Left: Image -->
+        <div class="col-md-5 text-center">
+            <img src="{{ product.image.url }}" alt="{{ product.title }}"
+                style="max-height: 450px; width: 100%; object-fit: contain; filter: drop-shadow(0px 10px 25px rgba(0,0,0,0.15));">
+        </div>
+
+        <!-- Right: Details -->
+        <div class="col-md-7">
+            <span class="badge bg-secondary mb-2 text-capitalize">{{ product_type|cut:"_"|title }}</span>
+            <h2 class="fw-bold mb-3">{{ product.title }}</h2>
+            <p class="text-muted mb-4" style="font-size: 1.05rem;">{{ product.desc }}</p>
+
+            <!-- Price -->
+            <div class="mb-4">
+                {% if product_type == 'carousel' %}
+                    <span class="text-danger me-2" style="text-decoration: line-through;">
+                        NPR {{ product.marked_price }}
+                    </span>
+                    <span class="badge bg-danger">{{ product.discount }}% OFF</span>
+                    <h3 class="fw-bold text-success mt-2">NPR {{ product.price|floatformat:0 }}</h3>
+                {% else %}
+                    <h3 class="fw-bold text-success">NPR {{ product.marked_price }}</h3>
+                {% endif %}
+            </div>
+
+            <!-- Add to Cart Button -->
+            <button class="btn btn-primary btn-lg px-5 rounded-pill add-to-cart-btn"
+                data-url="{% url 'add_to_cart' product_type product.pk %}">
+                Add to Cart
+            </button>
+
+            <a href="{% url 'index' %}" class="btn btn-outline-secondary btn-lg px-4 rounded-pill ms-2">
+                ← Back
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.querySelector('.add-to-cart-btn').addEventListener('click', function () {
+    const url = this.dataset.url;
+    const btn = this;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            btn.textContent = 'Added!';
+            btn.classList.replace('btn-primary', 'btn-success');
+            setTimeout(() => {
+                btn.innerHTML = ' Add to Cart';
+                btn.classList.replace('btn-success', 'btn-primary');
+            }, 2000);
+        }
+    });
+});
+</script>
+
+{% endblock content %}

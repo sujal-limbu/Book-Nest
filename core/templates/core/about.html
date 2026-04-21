@@ -1,0 +1,776 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500&display=swap');
+
+  :root {
+    --parchment: #f7f3ec;
+    --warm-white: #fdfaf5;
+    --ink: #1c1712;
+    --sepia: #6b5b45;
+    --muted: #9c8e7e;
+    --amber: #c8852a;
+    --amber-light: #f0d9b5;
+    --forest: #2d4a3e;
+    --border: #e2d9cc;
+    --card-bg: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+
+  .about-page {
+    background: var(--parchment);
+    font-family: 'Jost', sans-serif;
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ──────────────────────────────────────────── */
+  .about-hero {
+    position: relative;
+    min-height: 92vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    background: var(--forest);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 5rem 6rem 6rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* decorative book-spine lines */
+  .hero-left::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 48px,
+      rgba(255,255,255,0.03) 48px,
+      rgba(255,255,255,0.03) 50px
+    );
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--amber-light);
+    margin-bottom: 1.6rem;
+    opacity: 0;
+    animation: slideUp 0.7s 0.1s ease forwards;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 6vw, 5.5rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.05;
+    margin-bottom: 0;
+    opacity: 0;
+    animation: slideUp 0.7s 0.25s ease forwards;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--amber-light);
+  }
+
+  .hero-tagline {
+    margin-top: 1.8rem;
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.8;
+    max-width: 360px;
+    opacity: 0;
+    animation: slideUp 0.7s 0.4s ease forwards;
+  }
+
+  .hero-cta-row {
+    margin-top: 3rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: slideUp 0.7s 0.55s ease forwards;
+  }
+
+  .btn-primary-amber {
+    background: var(--amber);
+    color: #fff;
+    border: none;
+    padding: 0.85rem 2rem;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: background 0.25s, transform 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary-amber:hover {
+    background: #a06a1e;
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .btn-outline-white {
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 0.85rem 2rem;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: border-color 0.25s, color 0.25s;
+    display: inline-block;
+  }
+
+  .btn-outline-white:hover {
+    border-color: rgba(255,255,255,0.8);
+    color: #fff;
+  }
+
+  .hero-right {
+    background: var(--warm-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 4rem;
+    overflow: hidden;
+  }
+
+  /* big decorative letter */
+  .hero-right::before {
+    content: '"';
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28rem;
+    color: var(--amber-light);
+    opacity: 0.25;
+    top: -4rem;
+    right: -2rem;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .stacked-books {
+    position: relative;
+    width: 280px;
+    height: 380px;
+    opacity: 0;
+    animation: fadeIn 0.9s 0.5s ease forwards;
+  }
+
+  /* SVG-drawn stacked books illustration */
+  .book {
+    position: absolute;
+    border-radius: 3px 6px 6px 3px;
+    box-shadow: 4px 6px 20px rgba(0,0,0,0.12);
+  }
+
+  .book-1 {
+    width: 200px; height: 44px;
+    background: linear-gradient(90deg, #2d4a3e 0%, #3a6355 100%);
+    bottom: 0; left: 20px;
+    transform: rotate(-2deg);
+  }
+  .book-1::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 14px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 3px 0 0 3px;
+  }
+
+  .book-2 {
+    width: 180px; height: 40px;
+    background: linear-gradient(90deg, #7a3b1e 0%, #a85430 100%);
+    bottom: 42px; left: 30px;
+    transform: rotate(1.5deg);
+  }
+  .book-2::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 3px 0 0 3px;
+  }
+
+  .book-3 {
+    width: 210px; height: 46px;
+    background: linear-gradient(90deg, #1a3a5c 0%, #265a8e 100%);
+    bottom: 80px; left: 10px;
+    transform: rotate(-1deg);
+  }
+  .book-3::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 14px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 3px 0 0 3px;
+  }
+
+  .book-4 {
+    width: 170px; height: 38px;
+    background: linear-gradient(90deg, #5a3e6b 0%, #7d5a96 100%);
+    bottom: 124px; left: 40px;
+    transform: rotate(2deg);
+  }
+  .book-4::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 3px 0 0 3px;
+  }
+
+  .book-5 {
+    width: 195px; height: 42px;
+    background: linear-gradient(90deg, #c8852a 0%, #e0a84a 100%);
+    bottom: 160px; left: 20px;
+    transform: rotate(-0.5deg);
+  }
+  .book-5::before {
+    content: ''; position: absolute;
+    left: 0; top: 0; bottom: 0; width: 13px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 3px 0 0 3px;
+  }
+
+  .book-tall {
+    width: 54px; height: 220px;
+    background: linear-gradient(180deg, #2d4a3e 0%, #3d6655 100%);
+    bottom: 0; right: 30px;
+    border-radius: 3px 6px 6px 3px;
+  }
+  .book-tall::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 3px 6px 0 0;
+  }
+
+  .book-tall-2 {
+    width: 46px; height: 180px;
+    background: linear-gradient(180deg, #c8852a 0%, #a06a1e 100%);
+    bottom: 0; right: 92px;
+    border-radius: 3px 6px 6px 3px;
+  }
+
+  /* floating badge on hero */
+  .hero-stat-badge {
+    position: absolute;
+    bottom: 3rem;
+    right: 2.5rem;
+    background: var(--forest);
+    color: #fff;
+    padding: 1.2rem 1.5rem;
+    border-radius: 4px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    opacity: 0;
+    animation: slideUp 0.7s 0.7s ease forwards;
+  }
+
+  .hero-stat-badge .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--amber-light);
+    line-height: 1;
+  }
+
+  .hero-stat-badge .stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    margin-top: 0.3rem;
+  }
+
+  /* ── STORY SECTION ─────────────────────────────────── */
+  .story-section {
+    padding: 7rem 0;
+    background: var(--warm-white);
+  }
+
+  .story-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 3rem;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 6rem;
+    align-items: start;
+  }
+
+  .story-label-col {
+    position: sticky;
+    top: 5rem;
+  }
+
+  .section-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 6rem;
+    font-weight: 600;
+    color: var(--amber-light);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-kicker {
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+  }
+
+  .section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .story-text-col p {
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: var(--sepia);
+    font-weight: 300;
+    margin-bottom: 1.4rem;
+  }
+
+  .story-text-col p:first-child::first-letter {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 700;
+    float: left;
+    line-height: 0.85;
+    margin-right: 0.1em;
+    color: var(--amber);
+  }
+
+  .pull-quote {
+    border-left: 3px solid var(--amber);
+    padding: 1.2rem 1.8rem;
+    margin: 2.5rem 0;
+    background: var(--parchment);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .pull-quote p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--ink) !important;
+    line-height: 1.5;
+    margin: 0 !important;
+  }
+
+  /* ── VALUES ────────────────────────────────────────── */
+  .values-section {
+    padding: 7rem 0;
+    background: var(--parchment);
+  }
+
+  .values-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 3rem;
+  }
+
+  .values-header {
+    text-align: center;
+    margin-bottom: 5rem;
+  }
+
+  .values-header .section-kicker { margin-bottom: 0.8rem; }
+
+  .values-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .value-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 2.5rem 2rem;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .value-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--amber);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+
+  .value-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+  }
+
+  .value-card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .value-icon {
+    width: 52px; height: 52px;
+    background: var(--parchment);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+  }
+
+  .value-card h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.8rem;
+  }
+
+  .value-card p {
+    font-size: 0.9rem;
+    color: var(--sepia);
+    line-height: 1.75;
+    font-weight: 300;
+    margin: 0;
+  }
+
+  /* ── STATS BANNER ──────────────────────────────────── */
+  .stats-banner {
+    background: var(--forest);
+    padding: 5rem 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .stats-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 98px,
+      rgba(255,255,255,0.04) 98px,
+      rgba(255,255,255,0.04) 100px
+    );
+  }
+
+  .stats-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 3rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .stat-item .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--amber-light);
+    line-height: 1;
+    display: block;
+  }
+
+  .stat-item .label {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    margin-top: 0.5rem;
+    font-weight: 400;
+  }
+
+  /* ── TEAM ──────────────────────────────────────────── */
+  .team-section {
+    padding: 7rem 0;
+    background: var(--warm-white);
+  }
+
+  .team-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 3rem;
+  }
+
+  .team-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .team-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  .team-header p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 280px;
+    text-align: right;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .team-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--parchment);
+    border: 1px solid var(--border);
+  }
+
+  .team-avatar {
+    height: 200px;
+    background: linear-gradient(135deg, var(--forest) 0%, #3d6655 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--amber-light);
+    letter-spacing: -0.05em;
+  }
+
+  .team-card:nth-child(2) .team-avatar {
+    background: linear-gradient(135deg, #7a3b1e 0%, #a85430 100%);
+  }
+
+  .team-card:nth-child(3) .team-avatar {
+    background: linear-gradient(135deg, #1a3a5c 0%, #265a8e 100%);
+  }
+
+  .team-info {
+    padding: 1.4rem 1.5rem 1.6rem;
+  }
+
+  .team-info h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+
+  .team-role {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 500;
+    margin-bottom: 0.8rem;
+  }
+
+  .team-bio {
+    font-size: 0.88rem;
+    color: var(--sepia);
+    line-height: 1.7;
+    font-weight: 300;
+    margin: 0;
+  }
+
+  /* ── CTA STRIP ─────────────────────────────────────── */
+  .cta-strip {
+    background: var(--ink);
+    padding: 6rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-strip::before {
+    content: 'BOOKNEST';
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.03);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .cta-strip-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .cta-strip-inner .section-kicker {
+    color: var(--amber-light);
+    margin-bottom: 1rem;
+  }
+
+  .cta-strip-inner h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 4vw, 3rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+  }
+
+  .cta-strip-inner p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.55);
+    font-weight: 300;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── ANIMATIONS ────────────────────────────────────── */
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ── RESPONSIVE ────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .about-hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 4rem 2.5rem; min-height: 60vh; }
+    .hero-right { min-height: 50vh; }
+    .story-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .story-label-col { position: static; }
+    .values-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .team-grid { grid-template-columns: 1fr; }
+    .team-header { flex-direction: column; }
+    .team-header p { text-align: left; max-width: 100%; }
+  }
+</style>
+
+<div class="about-page">
+  <!-- ── STORY ── -->
+  <section class="story-section" id="story">
+      <div class="story-text-col">
+        <p>BookNest began in a small apartment in Kathmandu, where our founder spent evenings surrounded by stacks of borrowed books and the quiet frustration of not finding the right title nearby. The idea was simple yet urgent: bring a curated, lovingly organized bookstore to every reader in Nepal — and eventually, the world.</p>
+
+        <p>We launched in 2021 with fewer than 200 titles and a handwritten inventory. Within a year, we had grown to thousands of books across every genre imaginable — from Nepali literature and poetry to global bestsellers, academic texts, and rare collector's editions.</p>
+
+        <div class="pull-quote">
+          <p>"A book is not just paper and ink — it is someone's entire world, compressed and offered to you."</p>
+        </div>
+
+        <p>Today, BookNest serves thousands of readers across Nepal. We're proud to carry books that are hard to find elsewhere, and even prouder of the community of curious minds we've built around them. Every order that leaves our warehouse carries a little piece of that original apartment with it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── VALUES ── -->
+  <section class="values-section">
+    <div class="values-inner">
+      <div class="values-header">
+        <div class="section-kicker">What We Believe</div>
+        <h2>Principles That Guide<br>Every Page We Turn</h2>
+      </div>
+
+      <div class="values-grid">
+        <div class="value-card" data-aos="fade-up" data-aos-delay="0">
+          <h4>Curation Over Quantity</h4>
+          <p>We don't just stock books — we handpick titles that matter. Every book in our catalog has been chosen with care, so you spend less time searching and more time reading.</p>
+        </div>
+
+        <div class="value-card" data-aos="fade-up" data-aos-delay="100">
+          <h4>Reader-First Always</h4>
+          <p>From easy navigation to fast delivery and hassle-free returns — every decision we make starts with one question: does this make a reader's life better?</p>
+        </div>
+
+        <div class="value-card" data-aos="fade-up" data-aos-delay="200">
+          <h4>Community & Culture</h4>
+          <p>We support local authors, Nepali publishers, and indie voices. A portion of every sale goes toward literacy programs across Nepal.</p>
+        </div>
+
+        <div class="value-card" data-aos="fade-up" data-aos-delay="300">
+          <h4>Honest Pricing</h4>
+          <p>Books should be accessible. We keep our margins fair, offer regular discounts, and believe that the cost of a book should never be a barrier to knowledge.</p>
+        </div>
+
+        <div class="value-card" data-aos="fade-up" data-aos-delay="400">
+          <h4>Swift & Safe Delivery</h4>
+          <p>We treat your books the way you would — carefully packed, tracked, and delivered to your door in perfect condition.</p>
+        </div>
+
+        <div class="value-card" data-aos="fade-up" data-aos-delay="500">
+          <h4>Real Conversations</h4>
+          <p>Our support team are readers, not scripts. When you reach out, you talk to a real person who loves books just as much as you do.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% endblock content %}

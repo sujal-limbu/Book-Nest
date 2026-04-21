@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2><span class="text-warning">B</span>ook <span class="text-warning">N</span>est</h2>
+                <p>Join our reading community today</p>
+            </div>
+    
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-error">
+                    <p>Please correct the errors below:</p>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+    
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    <input type="text" name="username" id="id_username" 
+                           class="form-control" required autofocus>
+                    {% if form.username.help_text %}
+                    <small class="help-text">{{ form.username.help_text }}</small>
+                    {% endif %}
+                </div>
+    
+                <div class="form-group">
+                    <label for="id_email">Email</label>
+                    <input type="email" name="email" id="id_email" 
+                           class="form-control" required>
+                    {% if form.email.help_text %}
+                    <small class="help-text">{{ form.email.help_text }}</small>
+                    {% endif %}
+                </div>
+    
+                <div class="form-group">
+                    <label for="id_password1">Password</label>
+                    <input type="password" name="password1" id="id_password1" 
+                           class="form-control" required>
+                </div>
+    
+                <div class="form-group">
+                    <label for="id_password2">Confirm Password</label>
+                    <input type="password" name="password2" id="id_password2" 
+                           class="form-control" required>
+                    {% if form.password2.help_text %}
+                    <small class="help-text">{{ form.password2.help_text }}</small>
+                    {% endif %}
+                </div>
+    
+                <button type="submit" class="btn-primary btn-full">
+                    Create Account
+                </button>
+            </form>
+    
+            <div class="auth-footer">
+                <p>Already have an account? 
+                    <a href="{% url 'login' %}" class="auth-link">Sign In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .auth-container {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f0e8 0%, #e8e0d4 100%);
+            padding: 40px 20px;
+        }
+    
+        .auth-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            transition: transform 0.3s ease;
+        }
+    
+        .auth-card:hover {
+            transform: translateY(-4px);
+        }
+    
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+    
+        .auth-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #1a1714;
+            margin-bottom: 8px;
+        }
+    
+        .auth-header p {
+            color: #666;
+            font-size: 14px;
+        }
+    
+        .form-group {
+            margin-bottom: 20px;
+        }
+    
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+    
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+    
+        .form-control:focus {
+            outline: none;
+            border-color: #c49c55;
+            box-shadow: 0 0 0 3px rgba(196,156,85,0.1);
+        }
+    
+        .help-text {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+    
+        .alert-error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    
+        .btn-primary {
+            background: #c49c55;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+    
+        .btn-primary:hover {
+            background: #a67c3a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(196,156,85,0.3);
+        }
+    
+        .btn-full {
+            width: 100%;
+        }
+    
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+        }
+    
+        .auth-footer p {
+            color: #666;
+            font-size: 14px;
+        }
+    
+        .auth-link {
+            color: #c49c55;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    
+        .auth-link:hover {
+            text-decoration: underline;
+        }
+    
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 24px;
+            }
+            
+            .auth-header h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</body>
+</html>
+

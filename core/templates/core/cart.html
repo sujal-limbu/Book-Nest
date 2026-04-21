@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container my-5">
+    
+
+    {% if cart_items %}
+    <div class="row g-4">
+
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            {% for item in cart_items %}
+            <div class="card mb-3 shadow-sm border-0 rounded-4" id="cart-item-{{ item.id }}">
+                <div class="row g-0 align-items-center">
+
+                    <!-- Image -->
+                    <div class="col-3 text-center p-3">
+                        <img src="{{ item.image }}" alt="{{ item.title }}"
+                            style="max-height: 100px; object-fit: contain; width: 100%;">
+                    </div>
+
+                    <!-- Details -->
+                    <div class="col-6 p-3">
+                        <h5 class="fw-semibold mb-1">{{ item.title }}</h5>
+                        <p class="text-muted mb-1" style="font-size: 0.85rem;">
+                            {{ item.product_type|title }}
+                        </p>
+                        <p class="fw-bold text-success mb-0">NPR {{ item.price }}</p>
+                    </div>
+
+                    <!-- Qty + Remove -->
+                    <div class="col-3 text-center p-3">
+                        <p class="mb-1 text-muted" style="font-size: 0.85rem;">Qty</p>
+                        <h5 class="fw-bold">{{ item.quantity }}</h5>
+                        <button class="btn btn-sm btn-outline-danger rounded-pill remove-btn"
+                            data-url="{% url 'remove_from_cart' item.id %}" data-id="{{ item.id }}">
+                            Remove
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4" style="position: sticky; top: 100px;">
+                <h5 class="fw-bold mb-3">Order Summary</h5>
+                <hr>
+
+                {% for item in cart_items %}
+                <div class="d-flex justify-content-between mb-2" style="font-size: 0.9rem;">
+                    <span>{{ item.title }} × {{ item.quantity }}</span>
+                    <span>NPR {{ item.price }}</span>
+                </div>
+                {% endfor %}
+
+                <hr>
+                <div class="d-flex justify-content-between fw-bold fs-5">
+                    <span>Total</span>
+                    <span class="text-success" id="cart-total">NPR {{ total }}</span>
+                </div>
+
+                <form action="{% url 'initiate_esewa' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="btn btn-success w-100 mt-4 rounded-pill btn-lg d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                        <img src="https://developer.esewa.com.np/assets/img/esewa_logo.png" alt="eSewa"
+                            style="height: 32px; width: auto; object-fit: contain;">
+                        <span class="fw-bold fs-5"></span>
+                    </button>
+                </form>
+                <a href="{% url 'index' %}" class="btn btn-outline-secondary w-100 mt-2 rounded-pill">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="text-center py-5">
+        <img src="{% static 'img/empty-cart.png' %}" alt="Empty Cart" style="max-width: 220px; opacity: 0.6;"
+            onerror="this.style.display='none'">
+        <h4 class="mt-4 text-muted">Your cart is empty</h4>
+        <a href="{% url 'index' %}" class="btn btn-primary rounded-pill px-5 mt-3">
+            Start Shopping
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const url = this.dataset.url;
+            const itemId = this.dataset.id;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Smoothly remove the card
+                        const card = document.getElementById(`cart-item-${itemId}`);
+                        card.style.transition = 'opacity 0.3s';
+                        card.style.opacity = '0';
+                        setTimeout(() => {
+                            card.remove();
+
+                            // If no items left, reload to show empty state
+                            if (!document.querySelector('.remove-btn')) {
+                                location.reload();
+                            }
+                        }, 300);
+                    }
+                });
+        });
+    });
+</script>
+
+{% endblock content %}

@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My Orders - BookNest{% endblock %}
+
+{% block content %}
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+    .orders-page {
+        background: #faf8f5;
+        min-height: 100vh;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .orders-header {
+        background: linear-gradient(135deg, #1c1712 0%, #2d2419 100%);
+        padding: 3rem 0 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .orders-header::before {
+        content: '📚';
+        position: absolute;
+        font-size: 12rem;
+        opacity: 0.04;
+        right: 5%;
+        top: -20px;
+    }
+
+    .orders-header h1 {
+        font-family: 'Playfair Display', serif;
+        color: #fff;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .orders-header p {
+        color: #a89880;
+        font-size: 1rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.2rem 1.5rem;
+        border: 1px solid #ede8e0;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .stat-card .stat-number {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1c1712;
+    }
+
+    .stat-card .stat-label {
+        font-size: 0.8rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #ede8e0;
+        overflow: hidden;
+        transition: box-shadow 0.3s, transform 0.2s;
+        margin-bottom: 1.5rem;
+    }
+
+    .order-card:hover {
+        box-shadow: 0 8px 32px rgba(28, 23, 18, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .order-header {
+        background: #faf8f5;
+        border-bottom: 1px solid #ede8e0;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .order-id {
+        font-family: 'Playfair Display', serif;
+        font-weight: 600;
+        color: #1c1712;
+        font-size: 1.1rem;
+    }
+
+    .order-date {
+        font-size: 0.82rem;
+        color: #888;
+    }
+
+    .badge-completed {
+        background: #d4edda;
+        color: #155724;
+        padding: 0.35rem 0.9rem;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 500;
+    }
+
+    .badge-pending {
+        background: #fff3cd;
+        color: #856404;
+        padding: 0.35rem 0.9rem;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 500;
+    }
+
+    .badge-failed {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 0.35rem 0.9rem;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 500;
+    }
+
+    .order-body {
+        padding: 1.5rem;
+    }
+
+    .order-meta {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .order-meta-item label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #999;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .order-meta-item span {
+        font-weight: 500;
+        color: #1c1712;
+        font-size: 0.95rem;
+    }
+
+    .order-amount {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #2d6a4f;
+    }
+
+    .transaction-id {
+        font-size: 0.78rem;
+        color: #aaa;
+        font-family: monospace;
+        background: #f5f3ef;
+        padding: 2px 8px;
+        border-radius: 6px;
+        word-break: break-all;
+    }
+
+    .empty-orders {
+        text-align: center;
+        padding: 5rem 2rem;
+    }
+
+    .empty-orders .empty-icon {
+        font-size: 5rem;
+        opacity: 0.3;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-tab {
+        padding: 0.4rem 1.1rem;
+        border-radius: 50px;
+        border: 1.5px solid #ddd;
+        background: white;
+        color: #666;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .filter-tab.active,
+    .filter-tab:hover {
+        background: #1c1712;
+        border-color: #1c1712;
+        color: #f5c842;
+    }
+</style>
+
+<div class="orders-page">
+
+    <!-- Header -->
+    <div class="orders-header">
+        <div class="container">
+            <h1>My Orders</h1>
+            <p>Track and manage all your BookNest purchases</p>
+
+            <!-- Stats Row -->
+            <div class="row g-3 mt-2">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ orders.count }}</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ completed_count }}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ pending_count }}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">NPR {{ total_spent }}</div>
+                        <div class="stat-label">Total Spent</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders List -->
+    <div class="container py-5">
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterOrders('all', this)">All Orders</button>
+            <button class="filter-tab" onclick="filterOrders('completed', this)">Completed</button>
+            <button class="filter-tab" onclick="filterOrders('pending', this)">Pending</button>
+            <button class="filter-tab" onclick="filterOrders('failed', this)">Failed</button>
+        </div>
+
+        {% if orders %}
+            {% for order in orders %}
+            <div class="order-card" data-status="{{ order.status }}">
+
+                <!-- Order Header -->
+                <div class="order-header">
+                    <div>
+                        <div class="order-id">Order #{{ order.id }}</div>
+                        <div class="order-date">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ order.created_at|date:"F j, Y · g:i A" }}
+                        </div>
+                    </div>
+                    <div>
+                        {% if order.status == 'completed' %}
+                            <span class="badge-completed">Completed</span>
+                        {% elif order.status == 'pending' %}
+                            <span class="badge-pending">Pending</span>
+                        {% else %}
+                            <span class="badge-failed">Failed</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Order Body -->
+                <div class="order-body">
+                    <div class="order-meta">
+
+                        <div class="order-meta-item">
+                            <label>Amount Paid</label>
+                            <span class="order-amount">NPR {{ order.total_amount }}</span>
+                        </div>
+
+                        <div class="order-meta-item">
+                            <label>Payment Method</label>
+                            <span>
+                                <img src="https://developer.esewa.com.np/assets/img/esewa_logo.png"
+                                    alt="eSewa" style="height: 20px;"> eSewa
+                            </span>
+                        </div>
+
+                        <div class="order-meta-item">
+                            <label>Transaction ID</label>
+                            <span class="transaction-id">{{ order.transaction_id }}</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-orders">
+            <span class="empty-icon">📭</span>
+            <h4 class="text-muted fw-semibold">No orders yet</h4>
+            <p class="text-muted">You haven't placed any orders. Start shopping!</p>
+            <a href="{% url 'index' %}" class="btn btn-dark rounded-pill px-5 mt-2">
+                Browse Books
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+    function filterOrders(status, btn) {
+        // Update active tab
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Show/hide cards
+        document.querySelectorAll('.order-card').forEach(card => {
+            if (status === 'all' || card.dataset.status === status) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+
+{% endblock %}
